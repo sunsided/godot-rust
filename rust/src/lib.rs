@@ -44,3 +44,15 @@ impl ISprite2D for Player {
         self.base_mut().translate(velocity * delta as f32);
     }
 }
+
+#[godot_api]
+impl Player {
+    #[func]
+    fn increase_speed(&mut self, amount: f64) {
+        self.speed += amount;
+        self.base_mut().emit_signal("speed_increased".into(), &[]);
+    }
+
+    #[signal]
+    fn speed_increased();
+}
