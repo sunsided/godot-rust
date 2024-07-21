@@ -1,4 +1,5 @@
 use godot::classes::{ISprite2D, Sprite2D};
+use godot::global::Key;
 use godot::prelude::*;
 
 struct MyExtension;
@@ -6,11 +7,11 @@ struct MyExtension;
 #[gdextension]
 unsafe impl ExtensionLibrary for MyExtension {
     fn on_level_init(level: InitLevel) {
-        println!("[Rust]      Init level {:?}", level);
+        godot_print!("[Rust]      Init level {:?}", level);
     }
 
     fn on_level_deinit(level: InitLevel) {
-        println!("[Rust]      Deinit level {:?}", level);
+        godot_print!("[Rust]      Deinit level {:?}", level);
     }
 }
 
@@ -35,6 +36,16 @@ impl ISprite2D for Player {
         }
     }
 
+    fn process(&mut self, _delta: f64) {
+        let input = Input::singleton();
+        // TODO: is_action_pressed
+        if input.is_key_pressed(Key::W) {
+            self.increase_speed(10.0);
+        } else if input.is_key_pressed(Key::S) {
+            self.increase_speed(-10.0);
+        }
+    }
+
     fn physics_process(&mut self, delta: f64) {
         let radians = (self.angular_speed * delta) as f32;
         self.base_mut().rotate(radians);
@@ -50,6 +61,7 @@ impl Player {
     #[func]
     fn increase_speed(&mut self, amount: f64) {
         self.speed += amount;
+        godot_print!("[Rust]      Changed speed to {:?}", self.speed);
         self.base_mut().emit_signal("speed_increased".into(), &[]);
     }
 
